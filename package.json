@@ -3,10 +3,20 @@
   "version": "1.0.0",
   "description": "A CLI tool to help scaffold and bootstrap Umbraco extensions in the WebComponent based backoffice of Umbraco",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "create-package": "index.js"
+  },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "author": "Warren Buckley <warren@umbraco.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "chalk": "^5.2.0",
+    "typescript": "^5.0.4"
+  }
 }
