@@ -1,0 +1,8 @@
+{
+    "name": "##packageName##",
+    "scripts": {
+      "build": "tsc",
+      "watch": "tsc -w"
+    }    
+  }
+  

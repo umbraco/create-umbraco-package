@@ -1,0 +1,9 @@
+{
+    "$schema": "umbraco-package-schema.json",
+    "name": "##packageName##",
+    "version": "0.1.0",
+    "extensions": [
+      // Depending on chosen extensions we will add into this
+    ]
+  }
+  
