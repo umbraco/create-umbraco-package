@@ -16,7 +16,12 @@
   "author": "Warren Buckley <warren@umbraco.com>",
   "license": "ISC",
   "devDependencies": {
+    "@types/figlet": "^1.5.6",
     "chalk": "^5.2.0",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^1.2.3",
+    "figlet": "^1.6.0"
   }
 }
