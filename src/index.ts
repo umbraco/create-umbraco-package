@@ -4,7 +4,7 @@ import figlet from 'figlet';
 import fs from 'fs';
 import path from 'path';
 import { sanitizeFolderName } from './sanitize.js';
-import { exec, execSync } from 'child_process';
+import { exec } from 'child_process';
 
 function displayWelcome(){
     console.log(chalk.green.bold(figlet.textSync('Umbraco', { font: 'Thin'})));
@@ -21,6 +21,11 @@ async function startPrompts(){
         addGitIgnore: await confirm(
             { 
                 message: "Do you want to add a gitignore file?",
+                default: true
+            }),
+        useVSCode: await confirm(
+            {
+                message: "Do you want to use VSCode recommended extensions & settings?",
                 default: true
             }),
         packageType: await checkbox(
@@ -75,10 +80,30 @@ function scaffoldFiles(answers: any){
         const gitIgnorePath = path.join(process.cwd(), folderName, ".gitignore");
         console.log(`Creating GitIgnore File: ${chalk.green(gitIgnorePath)}`);
 
-        //fs.copyFileSync("./templates/gitignore.txt", gitIgnorePath);
+        // Use import.meta Moduel to help get the correct path
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta#getting_current_modules_file_path
+        const gitTemplateFilePath = new URL("./scaffolds/gitignore/_gitignore.txt", import.meta.url);
+
+        // Use fs-extra to copy folder in a post build script
+        fs.copyFileSync(gitTemplateFilePath, gitIgnorePath);
 
         // Run git init for the user
         runGitInit(folderPath);
+    }
+
+
+    // If VSCode is wanted - add in those files
+    if(answers.useVSCode){
+        // Copy the file from the template folder 
+        const vsCodeFolderPath = path.join(process.cwd(), folderName, ".vscode");
+        console.log(`Creating VSCode folder for recommended extensions & settings: ${chalk.green(vsCodeFolderPath)}`);
+
+        // Use import.meta Moduel to help get the correct path
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta#getting_current_modules_file_path
+        const vsCodeTemplateFolderPath = new URL("./scaffolds/vscode", import.meta.url);
+
+        // Copy the entire .vscode folder
+        fs.cpSync(vsCodeTemplateFolderPath, vsCodeFolderPath, { recursive: true });
     }
 }
 
@@ -89,8 +114,13 @@ function runGitInit(folderPath:string){
             return;
         }
         
-        console.log(`Git Init: ${stdout}`);
-        console.error(`Git Init Error: ${chalk.red(stderr)}`);
+        if(stdout){
+            console.log(`Git Init: ${chalk.yellow(stdout)}`);
+        }
+
+        if(stderr){
+            console.error(`Git Init Error: ${chalk.red(stderr)}`);
+        }
     });
 }
 
