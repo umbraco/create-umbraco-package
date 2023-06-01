@@ -4,7 +4,9 @@ import figlet from 'figlet';
 import fs from 'fs';
 import path from 'path';
 import { sanitizeFolderName } from './sanitize.js';
-import { exec } from 'child_process';
+import { gitIgnore } from './tasks/git.js';
+import { vsCode } from './tasks/vscode.js';
+import { umbracoPackageManifest } from './tasks/umbracopackage.js';
 
 function displayWelcome(){
     console.log(chalk.green.bold(figlet.textSync('Umbraco', { font: 'Thin'})));
@@ -43,9 +45,9 @@ async function startPrompts(){
                 ]
             })
     };
-      
-    console.log(answers.packageName);
-    console.log(answers.addGitIgnore);
+
+    // String array...
+    console.log(answers.packageType)
 
     // Scaffold files based off prompt answers
     // Will also perform other actions such as git init and npm install ...
@@ -73,57 +75,22 @@ function scaffoldFiles(answers: any){
     // Make the folder
     fs.mkdirSync(folderPath);
 
+    // Copy gitignore & git init command
+    gitIgnore(answers, folderName, folderPath);
 
-    // If gitignore is required, create it
-    if(answers.addGitIgnore){
-        // Copy the file from the template folder 
-        const gitIgnorePath = path.join(process.cwd(), folderName, ".gitignore");
-        console.log(`Creating GitIgnore File: ${chalk.green(gitIgnorePath)}`);
+    // Copy .vscode folder for recommended extensions & settings
+    vsCode(answers, folderName);
 
-        // Use import.meta Moduel to help get the correct path
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta#getting_current_modules_file_path
-        const gitTemplateFilePath = new URL("./scaffolds/gitignore/_gitignore.txt", import.meta.url);
+    // Copy Umbraco package manifest
+    umbracoPackageManifest(answers, folderName, folderPath);
 
-        // Use fs-extra to copy folder in a post build script
-        fs.copyFileSync(gitTemplateFilePath, gitIgnorePath);
+    // .github folder for dependabot or github actions ?
 
-        // Run git init for the user
-        runGitInit(folderPath);
-    }
+    // Prompt JSON schema - download from RAW github source
+    // What version do you want to use ?
 
-
-    // If VSCode is wanted - add in those files
-    if(answers.useVSCode){
-        // Copy the file from the template folder 
-        const vsCodeFolderPath = path.join(process.cwd(), folderName, ".vscode");
-        console.log(`Creating VSCode folder for recommended extensions & settings: ${chalk.green(vsCodeFolderPath)}`);
-
-        // Use import.meta Moduel to help get the correct path
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta#getting_current_modules_file_path
-        const vsCodeTemplateFolderPath = new URL("./scaffolds/vscode", import.meta.url);
-
-        // Copy the entire .vscode folder
-        fs.cpSync(vsCodeTemplateFolderPath, vsCodeFolderPath, { recursive: true });
-    }
+    
 }
-
-function runGitInit(folderPath:string){
-    exec('git init', { cwd: folderPath }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return;
-        }
-        
-        if(stdout){
-            console.log(`Git Init: ${chalk.yellow(stdout)}`);
-        }
-
-        if(stderr){
-            console.error(`Git Init Error: ${chalk.red(stderr)}`);
-        }
-    });
-}
-
 
 displayWelcome();
 startPrompts();
