@@ -1,8 +1,13 @@
 {
     "name": "##packageName##",
+    "type": "module",
     "scripts": {
       "build": "tsc",
       "watch": "tsc -w"
-    }    
+    },
+    "devDependencies": {
+      "typescript": "^5.0.4",
+      "vite": "^4.3.3"
+    }
   }
   

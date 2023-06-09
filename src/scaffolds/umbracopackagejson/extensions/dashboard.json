@@ -1,0 +1,14 @@
+{
+    "type": "dashboard",
+    "name": "Example Dashboard",
+    "alias": "example.dashboard",    
+    "js": "/App_Plugins/MyTSPackage/dist/mytspackage.js",
+    "weight": -1,
+    "meta": {
+        "label": "Example Dashboard META",
+        "pathname": "example-dashboard"
+    },
+    "conditions": {
+        "sections": ["Umb.Section.Content"]
+    }
+}
