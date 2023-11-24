@@ -97,25 +97,29 @@ import path from "path";
     // Make the folder
     //fs.mkdirSync(folderPath);
     //Make Vite project:
-    //try {
-    await execSync(`npm create vite@latest ${folderName} -- --template lit`, {
-      stdio: "inherit",
-    });
-    //} catch (error) {
-    // Nothing, cause this is most likely just the server begin stopped.
-    //console.log(error);
-    //}
+    try {
+      await execSync(`npm create vite@latest ${folderName} -- --template lit`, {
+        stdio: "pipe",
+      });
+    } catch (error) {
+      //Nothing, cause this is most likely just the server begin stopped.
+      console.log(error);
+    }
 
     if (!fs.existsSync(folderPath)) {
       console.log(`Vite project creation failed? at: ${chalk.red(folderPath)}`);
       return;
+    } else {
+      console.log(`Created the Vite project: ${chalk.green(folderPath)}`);
     }
 
-    // Copy .vscode folder for recommended extensions & settings
-    await vsCode(answers, folderName);
+    if (answers.useVSCode) {
+      // Copy .vscode folder for recommended extensions & settings
+      await vsCode(folderName);
+    }
 
     // Copy vite scaffold folder for vite config and clean up.
-    await vite(folderName);
+    await vite(folderPath, folderName);
 
     // Copy Umbraco package manifest
     umbracoPackageManifest(answers, folderName, folderPath);

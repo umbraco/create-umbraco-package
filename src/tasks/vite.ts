@@ -3,7 +3,7 @@ import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-export async function vite(folderName: string) {
+export async function vite(folderPath: string, folderName: string) {
   // Copy the file from the template folder
   const viteFolderPath = path.join(process.cwd(), folderName);
 
@@ -29,7 +29,7 @@ export async function vite(folderName: string) {
   fs.rmSync(path.join(viteFolderPath, "src", "my-element.js"));
 
   // Remove direct lit dependency from vite
-  await execSync(`npm uninstall –D lit`, {
+  await execSync(`npm uninstall –d lit`, {
     cwd: viteFolderPath,
     stdio: "inherit",
   });
