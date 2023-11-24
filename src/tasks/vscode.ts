@@ -12,7 +12,7 @@ export async function vsCode(answers: any, folderName: string) {
       )}`
     );
 
-    // Use import.meta Moduel to help get the correct path
+    // Use import.meta Module to help get the correct path
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import.meta#getting_current_modules_file_path
     const vsCodeTemplateFolderPath = new URL(
       "../scaffolds/vscode",
