@@ -1,14 +1,15 @@
+import { execSync } from "child_process";
+import { gitIgnore } from "./tasks/git.js";
 import { input, confirm, checkbox } from "@inquirer/prompts";
+import { readdir } from "fs/promises";
+import { resolve } from "import-meta-resolve";
+import { sanitizeFolderName } from "./sanitize.js";
+import { umbracoPackageManifest } from "./tasks/umbracopackage.js";
+import { vsCode } from "./tasks/vscode.js";
 import chalk from "chalk";
 import figlet from "figlet";
 import fs from "fs";
 import path from "path";
-import { sanitizeFolderName } from "./sanitize.js";
-import { gitIgnore } from "./tasks/git.js";
-import { vsCode } from "./tasks/vscode.js";
-import { umbracoPackageManifest } from "./tasks/umbracopackage.js";
-import { readdir } from "fs/promises";
-import { resolve } from "import-meta-resolve";
 
 (async () => {
   const umbracoExamplesDirectory = await resolve(
@@ -97,7 +98,16 @@ import { resolve } from "import-meta-resolve";
     }
 
     // Make the folder
-    fs.mkdirSync(folderPath);
+    //fs.mkdirSync(folderPath);
+    //Make Vite project:
+    //try {
+    execSync(`npm create vite@latest ${folderName}`, {
+      stdio: "inherit",
+    });
+    //} catch (error) {
+    // Nothing, cause this is most likely just the server begin stopped.
+    //console.log(error);
+    //}
 
     // Copy gitignore & git init command
     gitIgnore(answers, folderName, folderPath);
@@ -118,8 +128,8 @@ import { resolve } from "import-meta-resolve";
     if (answers.packageExample.length > 0) {
       answers.packageExample.forEach((exampleFolderName: string) => {
         const srcDir = getExampleDirectory(exampleFolderName);
-        console.log("copy", srcDir, "to", folderName);
-        fs.cpSync(srcDir, folderPath, { recursive: true });
+        console.log("copy", srcDir, "to", folderPath + "/src");
+        fs.cpSync(srcDir, folderPath + "/src", { recursive: true });
       });
     }
   }
