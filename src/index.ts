@@ -6,6 +6,7 @@ import { resolve } from "import-meta-resolve";
 import { sanitizeFolderName } from "./sanitize.js";
 import { umbracoPackageManifest } from "./tasks/umbracopackage.js";
 import { vsCode } from "./tasks/vscode.js";
+import { vite } from "./tasks/vite.js";
 import chalk from "chalk";
 import figlet from "figlet";
 import fs from "fs";
@@ -13,10 +14,10 @@ import path from "path";
 
 (async () => {
   const umbracoExamplesDirectory = await resolve(
-    "@umbraco-cms/backoffice/examples",
+    path.join("@umbraco-cms", "backoffice", "examples"),
     import.meta.url
   )
-    .replace("/index.js", "")
+    .replace("/index.js", "") // TODO: Support windows?
     .replace("file://", "");
 
   if (umbracoExamplesDirectory === undefined) {
@@ -30,7 +31,7 @@ import path from "path";
   console.log("umbracoExamplesDirectory", umbracoExamplesDirectory);
 
   function getExampleDirectory(folderName: string) {
-    return umbracoExamplesDirectory + "/" + folderName;
+    return path.join(umbracoExamplesDirectory, folderName);
   }
 
   const getDirectories = async (source: string) =>
@@ -57,10 +58,6 @@ import path from "path";
         message: "Package Name:",
         default: "My First Package",
       }),
-      addGitIgnore: await confirm({
-        message: "Do you want to add a gitignore file?",
-        default: true,
-      }),
       useVSCode: await confirm({
         message: "Do you want to use VSCode recommended extensions & settings?",
         default: true,
@@ -76,7 +73,7 @@ import path from "path";
     scaffoldFiles(answers);
   }
 
-  function scaffoldFiles(answers: any) {
+  async function scaffoldFiles(answers: any) {
     // Create folder based on name of package
     const packageName = answers.packageName;
     const folderName = sanitizeFolderName(packageName);
@@ -101,7 +98,7 @@ import path from "path";
     //fs.mkdirSync(folderPath);
     //Make Vite project:
     //try {
-    execSync(`npm create vite@latest ${folderName}`, {
+    await execSync(`npm create vite@latest ${folderName} -- --template lit`, {
       stdio: "inherit",
     });
     //} catch (error) {
@@ -109,18 +106,25 @@ import path from "path";
     //console.log(error);
     //}
 
-    // Copy gitignore & git init command
-    gitIgnore(answers, folderName, folderPath);
+    if (!fs.existsSync(folderPath)) {
+      console.log(`Vite project creation failed? at: ${chalk.red(folderPath)}`);
+      return;
+    }
 
     // Copy .vscode folder for recommended extensions & settings
-    vsCode(answers, folderName);
+    await vsCode(answers, folderName);
+
+    // Copy vite scaffold folder for vite config and clean up.
+    await vite(folderName);
 
     // Copy Umbraco package manifest
     umbracoPackageManifest(answers, folderName, folderPath);
 
-    // TODO: Missing TSC setup?
-
-    // .github folder for dependabot or github actions ?
+    // Append Umbraco-backoffice as a dependency
+    await execSync(`npm install -D @umbraco-cms/backoffice@latest`, {
+      cwd: folderPath,
+      stdio: "inherit",
+    });
 
     // Prompt JSON schema - download from RAW github source
     // What version do you want to use ?
@@ -128,8 +132,7 @@ import path from "path";
     if (answers.packageExample.length > 0) {
       answers.packageExample.forEach((exampleFolderName: string) => {
         const srcDir = getExampleDirectory(exampleFolderName);
-        console.log("copy", srcDir, "to", folderPath + "/src");
-        fs.cpSync(srcDir, folderPath + "/src", { recursive: true });
+        fs.cpSync(srcDir, path.join(folderPath, "src"), { recursive: true });
       });
     }
   }
