@@ -29,7 +29,7 @@ export async function vite(folderPath: string, folderName: string) {
   fs.rmSync(path.join(viteFolderPath, "src", "my-element.js"));
 
   // Remove direct lit dependency from vite
-  await execSync(`npm uninstall –d lit`, {
+  await execSync(`npm uninstall -d lit`, {
     cwd: viteFolderPath,
     stdio: "inherit",
   });

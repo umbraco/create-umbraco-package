@@ -113,16 +113,16 @@ import path from "path";
       console.log(`Created the Vite project: ${chalk.green(folderPath)}`);
     }
 
+    // Copy vite scaffold folder for vite config and clean up.
+    await vite(folderPath, folderName);
+
     if (answers.useVSCode) {
       // Copy .vscode folder for recommended extensions & settings
       await vsCode(folderName);
     }
 
-    // Copy vite scaffold folder for vite config and clean up.
-    await vite(folderPath, folderName);
-
     // Copy Umbraco package manifest
-    umbracoPackageManifest(answers, folderName, folderPath);
+    await umbracoPackageManifest(answers, folderName, folderPath);
 
     // Append Umbraco-backoffice as a dependency
     await execSync(`npm install -D @umbraco-cms/backoffice@latest`, {

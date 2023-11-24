@@ -1,8 +1,13 @@
 {
-    "$schema": "umbraco-package-schema.json",
-    "name": "##packageName##",
-    "version": "0.1.0",
-    "extensions": [
-    ]
-  }
-  
+  "$schema": "../node_modules/@umbraco-cms/backoffice/dist-cms/umbraco-package-schema.json",
+  "name": "##packageName##",
+  "version": "0.0.0",
+  "extensions": [
+    {
+      "type": "bundle",
+      "name": "##packageName##",
+      "alias": "##packageAlias##",
+      "js": "App_Plugins/##folderName##/dist/index.js"
+    }
+  ]
+}
